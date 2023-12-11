@@ -22,6 +22,7 @@ public class CharacterAnimationController : Resettable
         CharacterActions.OnLandEvent += () => animator.SetTrigger(LANDING_TRIGGER);
         CharacterActions.OnDashEvent += () => animator.SetTrigger(DASH_TRIGGER);
         CharacterActions.OnDeathEvent += () => animator.SetTrigger(DIE_TRIGGER);
+        CharacterActions.MovementEvent += (x) => animator.SetFloat(MOVEMENT_SPEED_ABS, Math.Abs(x));
     }
 
     public void ToggleSword()

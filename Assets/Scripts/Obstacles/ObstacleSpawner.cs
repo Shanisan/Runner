@@ -42,38 +42,41 @@ public class ObstacleSpawner : Resettable
 
     private void Update()
     {
-        if (gracePeriod >= 0)
+        if (Singleton.Instance.isGameStarted)
         {
-            gracePeriod -= Time.deltaTime;
-        }
-        else if (player.IsAlive)
-        {
-            var dist = (transform.position - cam.transform.position).z;
-            var leftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, dist)).x;
-            var rightBorder = cam.ViewportToWorldPoint(new Vector3(1, 0, dist)).x;
-
-            if (placedObstacles.Count > 0)
+            if (gracePeriod >= 0)
             {
-                //delete the first item in the list if it is left of the left border, aka not in view anymore.
-                var obj = placedObstacles.First();
-                if (obj.transform.position.x < leftBorder-1)
-                {
-                    Destroy(obj.gameObject);
-                    RemoveObstacleFromList(obj);
-                }
+                gracePeriod -= Time.deltaTime;
             }
+            else if (player.IsAlive)
+            {
+                var dist = (transform.position - cam.transform.position).z;
+                var leftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, dist)).x;
+                var rightBorder = cam.ViewportToWorldPoint(new Vector3(1, 0, dist)).x;
 
-            if(placedObstacles.Count > 0){
-            //if the last item in the list is left of the right border, aka in view, check if we can place a new obstacle and do so
-                var obj = placedObstacles.Last();
-                if (rightBorder - obj.transform.position.x > obstacleOffset)
+                if (placedObstacles.Count > 0)
+                {
+                    //delete the first item in the list if it is left of the left border, aka not in view anymore.
+                    var obj = placedObstacles.First();
+                    if (obj.transform.position.x < leftBorder-1)
+                    {
+                        Destroy(obj.gameObject);
+                        RemoveObstacleFromList(obj);
+                    }
+                }
+
+                if(placedObstacles.Count > 0){
+                    //if the last item in the list is left of the right border, aka in view, check if we can place a new obstacle and do so
+                    var obj = placedObstacles.Last();
+                    if (rightBorder - obj.transform.position.x > obstacleOffset)
+                    {
+                        SpawnObstacle(new Vector3(rightBorder+1,groundHeight.position.y, 0));
+                    }
+                }
+                else if(lastDestroyedObstaclePosition==Vector3.zero || rightBorder - lastDestroyedObstaclePosition.x > obstacleOffset)
                 {
                     SpawnObstacle(new Vector3(rightBorder+1,groundHeight.position.y, 0));
                 }
-            }
-            else if(lastDestroyedObstaclePosition==Vector3.zero || rightBorder - lastDestroyedObstaclePosition.x > obstacleOffset)
-            {
-                SpawnObstacle(new Vector3(rightBorder+1,groundHeight.position.y, 0));
             }
         }
         

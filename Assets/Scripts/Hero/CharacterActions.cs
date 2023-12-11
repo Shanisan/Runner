@@ -40,7 +40,7 @@ public class CharacterActions : Resettable
     private Rigidbody2D rb;
 
     public static event Action OnLandEvent, OnDashEvent, OnJumpEvent, OnJumpFallEvent, OnDeathEvent;
-    public static event Action<float> DashRecoveryUpdate;
+    public static event Action<float> DashRecoveryUpdate, MovementEvent;
 
     private Feet feet;
     private Sword sword;
@@ -82,33 +82,36 @@ private float verticalSpeed = 0;
 
     private void FixedUpdate()
     {
-        if (IsAlive)
+        if (Singleton.Instance.isGameStarted)
         {
-            // Move the character by finding the target velocity
-            Vector3 targetVelocity = new Vector2(movementForce, rb.velocity.y);
-            // And then smoothing it out and applying it to the character
-            rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmoothing);
-            //MovementEvent?.Invoke(rb.velocity.x);
-
-
-            //if we started falling in the jump, start the falling animation
-            if (!feet.Grounded)
+            if (IsAlive)
             {
-                if (verticalSpeed > 0 && rb.velocity.y < 0)
+                // Move the character by finding the target velocity
+                Vector3 targetVelocity = new Vector2(movementForce, rb.velocity.y);
+                // And then smoothing it out and applying it to the character
+                rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmoothing);
+                MovementEvent?.Invoke(rb.velocity.x);
+
+
+                //if we started falling in the jump, start the falling animation
+                if (!feet.Grounded)
                 {
-                    OnJumpFallEvent?.Invoke();
+                    if (verticalSpeed > 0 && rb.velocity.y < 0)
+                    {
+                        OnJumpFallEvent?.Invoke();
+                    }
+
+                    verticalSpeed = rb.velocity.y;
                 }
 
-                verticalSpeed = rb.velocity.y;
+                if (feet.Grounded && !wasGrounded)
+                {
+                    OnLandEvent?.Invoke();
+                    wasGrounded = true;
+                }
+                else
+                    wasGrounded = feet.Grounded;
             }
-
-            if (feet.Grounded && !wasGrounded)
-            {
-                OnLandEvent?.Invoke();
-                wasGrounded = true;
-            }
-            else
-                wasGrounded = feet.Grounded;
         }
     }
 
@@ -170,9 +173,9 @@ private float verticalSpeed = 0;
         while (dashRecoveryProgress<10*dashRecoveryTime)
         {
             dashRecoveryProgress += 1;
+            DashRecoveryUpdate?.Invoke(dashRecoveryProgress/(dashRecoveryTime*10));
             yield return new WaitForSeconds(.1f);
         }
-
         isDashAvailable = true;
     }
 
