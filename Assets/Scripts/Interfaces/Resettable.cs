@@ -1,4 +1,16 @@
-﻿public interface Resettable
+﻿using System;
+using UnityEngine;
+
+public abstract class Resettable : MonoBehaviour
 {
-    public void Reset();
+    protected virtual void OnEnable()
+    {
+        InputManager.OnRestartPressed += Reset;
+    }
+    protected virtual void OnDisable()
+    {
+        InputManager.OnRestartPressed -= Reset;
+    }
+
+    protected abstract void Reset();
 }

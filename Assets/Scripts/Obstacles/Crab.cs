@@ -13,7 +13,8 @@ public class Crab : Obstacle
         InvokeObstacleDestroyedEvent(this);
         isAlive = false;
         GetComponentInChildren<Animator>().SetTrigger(DIE_TRIGGER);
-        GetComponent<Collider2D>().excludeLayers=LayerMask.GetMask("Player");
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
     }
 
     private void OnCollisionEnter2D(Collision2D other)

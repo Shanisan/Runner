@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterAnimationController : MonoBehaviour
+public class CharacterAnimationController : Resettable
 {
     [SerializeField] private CharacterActions controller;
     private Animator animator;
@@ -34,4 +34,20 @@ public class CharacterAnimationController : MonoBehaviour
         animator.enabled = false;
     }
 
+    protected override void Reset()
+    {
+        animator.enabled = true;
+        animator.Play("Run");
+        StartCoroutine(ResetAnimationTriggers());
+    }
+
+    private IEnumerator ResetAnimationTriggers()
+    {
+        yield return null;
+        animator.ResetTrigger(JUMP_TRIGGER);
+        animator.ResetTrigger(JUMP_FALL_TRIGGER);
+        animator.ResetTrigger(LANDING_TRIGGER);
+        animator.ResetTrigger(DASH_TRIGGER);
+        animator.ResetTrigger(DIE_TRIGGER);
+    }
 }

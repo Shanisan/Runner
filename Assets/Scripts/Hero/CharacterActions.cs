@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 
-public class CharacterActions : MonoBehaviour, Resettable
+public class CharacterActions : Resettable
 {
     [SerializeField] private float jumpForce = 400f; // Amount of force added when the player jumps.
     [SerializeField] private float dashForce = 300f; // Amount of force added when the player dashes.
@@ -57,14 +57,9 @@ public class CharacterActions : MonoBehaviour, Resettable
         defaultPosition = transform.position;
     }
 
-    private void OnEnable()
+    protected override void OnDisable()
     {
-        InputManager.OnRestartPressed += Reset;
-    }
-
-    private void OnDisable()
-    {
-        InputManager.OnRestartPressed -= Reset;
+        base.OnDisable();
         SubscribeToInputEvents(false);
     }
 
@@ -149,6 +144,7 @@ private float verticalSpeed = 0;
                 GetComponent<Collider2D>().excludeLayers = 0;
                 transform.position = defaultPosition;
                 ToggleSword(false);
+                
             }
 
             _isAlive = value;
@@ -185,7 +181,7 @@ private float verticalSpeed = 0;
         sword.gameObject.SetActive(b ?? (!sword.gameObject.activeSelf));
     }
 
-    public void Reset()
+    protected override void Reset()
     {
         if(!IsAlive)
             IsAlive = true;
@@ -194,5 +190,9 @@ private float verticalSpeed = 0;
             transform.position = defaultPosition;
             ToggleSword(false);
         }
+
+        rb.velocity = Vector2.zero;
+        wasGrounded = true;
+        isDashAvailable = true;
     }
 }

@@ -5,40 +5,48 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
-public class ObstacleSpawner : MonoBehaviour, Resettable
+public class ObstacleSpawner : Resettable
 {
     [SerializeField] private List<GameObject> obstacleTypes;
     [SerializeField] private Camera cam;
     [SerializeField] private CharacterActions player;
     [SerializeField] private Transform groundHeight;
     [SerializeField] private float obstacleOffset = 5;
+    [SerializeField] private float defaultGracePeriod = 1;
 
     private List<Obstacle> placedObstacles = new List<Obstacle>();
-    private Transform lastDestroyedObstaclePosition;
+    private Vector3 lastDestroyedObstaclePosition = Vector3.zero;
 
     private int obstacleCounter = 0;
-    private void OnEnable()
+    private float gracePeriod;
+    private bool reset = false;
+    protected void OnEnable()
     {
+        gracePeriod = defaultGracePeriod;
+        base.OnEnable();
         Obstacle.OnObstacleDestroyedEvent += RemoveObstacleFromList;
-        InputManager.OnRestartPressed += Reset;
     }
 
-    private void OnDisable()
+    protected void OnDisable()
     {
+        base.OnDisable();
         Obstacle.OnObstacleDestroyedEvent -= RemoveObstacleFromList;
-        InputManager.OnRestartPressed -= Reset;
     }
 
     private void RemoveObstacleFromList(Obstacle obstacle)
     {
         Debug.Log($"Removing {obstacle} from the list.");
-        lastDestroyedObstaclePosition = obstacle.transform;
+        lastDestroyedObstaclePosition = obstacle.transform.position;
         placedObstacles.Remove(obstacle);
     }
 
     private void Update()
     {
-        if (player.IsAlive)
+        if (gracePeriod >= 0)
+        {
+            gracePeriod -= Time.deltaTime;
+        }
+        else if (player.IsAlive)
         {
             var dist = (transform.position - cam.transform.position).z;
             var leftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, dist)).x;
@@ -63,7 +71,7 @@ public class ObstacleSpawner : MonoBehaviour, Resettable
                     SpawnObstacle(new Vector3(rightBorder+1,groundHeight.position.y, 0));
                 }
             }
-            else if(lastDestroyedObstaclePosition==null || rightBorder - lastDestroyedObstaclePosition.position.x > obstacleOffset)
+            else if(lastDestroyedObstaclePosition==Vector3.zero || rightBorder - lastDestroyedObstaclePosition.x > obstacleOffset)
             {
                 SpawnObstacle(new Vector3(rightBorder+1,groundHeight.position.y, 0));
             }
@@ -79,10 +87,12 @@ public class ObstacleSpawner : MonoBehaviour, Resettable
         placedObstacles.Add(obstacle.GetComponent<Obstacle>());
     }
 
-    public void Reset()
+    protected override void Reset()
     {
         foreach (var x in placedObstacles) Destroy(x.gameObject);
         placedObstacles = new List<Obstacle>();
-        lastDestroyedObstaclePosition = null;
+        lastDestroyedObstaclePosition = Vector3.zero;
+        obstacleCounter = 0;
+        gracePeriod = defaultGracePeriod;
     }
 }

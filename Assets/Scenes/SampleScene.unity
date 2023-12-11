@@ -535,6 +535,7 @@ MonoBehaviour:
   player: {fileID: 4676958}
   groundHeight: {fileID: 322766217}
   obstacleOffset: 10
+  defaultGracePeriod: 1
 --- !u!4 &569552349
 Transform:
   m_ObjectHideFlags: 0
