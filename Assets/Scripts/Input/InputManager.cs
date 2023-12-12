@@ -8,7 +8,7 @@ public class InputManager : MonoBehaviour
     public GameInputSystem input;
     public CharacterActions characterController;
 
-    public static event Action OnJumpPressed, OnDashPressed, OnRestartPressed;
+    public static event Action OnJumpPressed, OnDashPressed;
 
     private void Awake()
     {
@@ -16,13 +16,15 @@ public class InputManager : MonoBehaviour
         input = new GameInputSystem();
         input.Gameplay.Jump.performed += _ => Jump_performed();
         input.Gameplay.Dash.performed += _ => Dash_performed();
+#if UNITY_EDITOR
         input.Gameplay.Restart.performed += _ => Restart_performed();
+#endif
     }
 
     private void Restart_performed()
     {
         Debug.Log("Restarting");
-        OnRestartPressed?.Invoke();
+        GameManager.Instance.RestartGame();
     }
 
     private void Jump_performed()

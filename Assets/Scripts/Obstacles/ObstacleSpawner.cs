@@ -19,15 +19,15 @@ public class ObstacleSpawner : Resettable
 
     private int obstacleCounter = 0;
     private float gracePeriod;
-    private bool reset = false;
-    protected void OnEnable()
+    //private bool reset = false;
+    protected override void OnEnable()
     {
         gracePeriod = defaultGracePeriod;
         base.OnEnable();
         Obstacle.OnObstacleDestroyedEvent += RemoveObstacleFromList;
     }
 
-    protected void OnDisable()
+    protected override void OnDisable()
     {
         base.OnDisable();
         Obstacle.OnObstacleDestroyedEvent -= RemoveObstacleFromList;
