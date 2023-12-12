@@ -1,14 +1,18 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-public class Singleton : MonoBehaviour
+[DefaultExecutionOrder(-5)]
+public class GameManager : MonoBehaviour
 {
-    public static Singleton Instance { get; private set; }
+    public static GameManager Instance { get; private set; }
     /*
     public AudioManager AudioManager { get; private set; }
     public UIManager UIManager { get; private set; }
     */
     public UIManager UIManager;
     public bool isGameStarted = false;
+
+    public event Action RestartGameEvent;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -21,5 +25,11 @@ public class Singleton : MonoBehaviour
          AudioManager = GetComponentInChildren<AudioManager>();
         UIManager = GetComponentInChildren<UIManager>();
         */
+    }
+
+
+    public void RestartGame()
+    {
+        RestartGameEvent?.Invoke();
     }
 }

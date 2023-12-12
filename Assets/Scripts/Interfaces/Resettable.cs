@@ -5,11 +5,11 @@ public abstract class Resettable : MonoBehaviour
 {
     protected virtual void OnEnable()
     {
-        InputManager.OnRestartPressed += Reset;
+        GameManager.Instance.RestartGameEvent += Reset;
     }
     protected virtual void OnDisable()
     {
-        InputManager.OnRestartPressed -= Reset;
+        GameManager.Instance.RestartGameEvent -= Reset;
     }
 
     protected abstract void Reset();

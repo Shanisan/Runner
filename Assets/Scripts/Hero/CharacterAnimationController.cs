@@ -50,5 +50,6 @@ public class CharacterAnimationController : Resettable
         animator.ResetTrigger(LANDING_TRIGGER);
         animator.ResetTrigger(DASH_TRIGGER);
         animator.ResetTrigger(DIE_TRIGGER);
+        animator.SetFloat(MOVEMENT_SPEED_ABS, 0);
     }
 }

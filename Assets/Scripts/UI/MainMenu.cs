@@ -16,8 +16,8 @@ public class MainMenu : MonoBehaviour
 
     private void StartGame()
     {
-        Singleton.Instance.UIManager.CurrentScreen = UIScreen.IN_GAME;
-        Singleton.Instance.isGameStarted = true;
+        GameManager.Instance.UIManager.CurrentScreen = UIScreen.IN_GAME;
+        GameManager.Instance.isGameStarted = true;
     }
 
     private void ExitGame()

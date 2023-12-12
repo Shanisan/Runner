@@ -42,7 +42,7 @@ public class ObstacleSpawner : Resettable
 
     private void Update()
     {
-        if (Singleton.Instance.isGameStarted)
+        if (GameManager.Instance.isGameStarted)
         {
             if (gracePeriod >= 0)
             {

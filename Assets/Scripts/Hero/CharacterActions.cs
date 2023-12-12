@@ -82,7 +82,7 @@ private float verticalSpeed = 0;
 
     private void FixedUpdate()
     {
-        if (Singleton.Instance.isGameStarted)
+        if (GameManager.Instance.isGameStarted)
         {
             if (IsAlive)
             {
@@ -197,5 +197,6 @@ private float verticalSpeed = 0;
         rb.velocity = Vector2.zero;
         wasGrounded = true;
         isDashAvailable = true;
+        
     }
 }
