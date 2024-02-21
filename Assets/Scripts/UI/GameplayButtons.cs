@@ -13,6 +13,7 @@ public class GameplayButtons : MonoBehaviour
     
     private void OnEnable()
     {
+        dashButton.fillAmount = 1f;
         CharacterActions.DashRecoveryUpdate += UpdateDashButtonProgress;
     }
     private void OnDisable()

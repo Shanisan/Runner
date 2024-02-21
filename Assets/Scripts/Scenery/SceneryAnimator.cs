@@ -40,6 +40,7 @@ public class SceneryAnimator : Resettable
 
     private void ParallaxScenery()
     {
+        //todo: move old scenery items instead of deleting them and creating new ones
         backgroundContainer.position += new Vector3(backgroundSpeed * Time.deltaTime * -1, 0, 0);
         middlegroundContainer.position += new Vector3(middlegroundSpeed * Time.deltaTime * -1, 0, 0);
     }

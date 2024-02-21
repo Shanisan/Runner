@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -16,6 +17,8 @@ public class CharacterActions : Resettable
 
     [SerializeField] private float
         dashRecoveryTime = 3f; // How long it takes for the character to get back to the start and be able to move again
+    [SerializeField] private CinemachineVirtualCamera
+        cinemachineCamera; // How long it takes for the character to get back to the start and be able to move again
 
     public float MovementDirection { get; set; }
 
@@ -111,6 +114,12 @@ private float verticalSpeed = 0;
                 }
                 else
                     wasGrounded = feet.Grounded;
+                
+                //kill the character if they fall more than 3 units down
+                if (defaultPosition.y - transform.position.y > 3f)
+                {
+                    IsAlive = false;
+                }
             }
         }
     }
@@ -139,6 +148,7 @@ private float verticalSpeed = 0;
             {
                 SubscribeToInputEvents(false);
                 GetComponent<Collider2D>().excludeLayers=LayerMask.GetMask("Enemy");
+                cinemachineCamera.Follow = null;
                 OnDeathEvent?.Invoke();
             }
             else
@@ -147,7 +157,7 @@ private float verticalSpeed = 0;
                 GetComponent<Collider2D>().excludeLayers = 0;
                 transform.position = defaultPosition;
                 ToggleSword(false);
-                
+                cinemachineCamera.Follow = transform;
             }
 
             _isAlive = value;
@@ -197,6 +207,6 @@ private float verticalSpeed = 0;
         rb.velocity = Vector2.zero;
         wasGrounded = true;
         isDashAvailable = true;
-        
+
     }
 }
