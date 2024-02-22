@@ -26,7 +26,7 @@ public class SceneryAnimator : Resettable
     private bool resetting = false;
     private void Update()
     {
-        if (GameManager.Instance.isGameStarted && player.IsAlive && !resetting)
+        if (player.IsAlive && !resetting)
         {
             var dist = (transform.position - cam.transform.position).z;
             var leftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, dist)).x;
@@ -40,13 +40,16 @@ public class SceneryAnimator : Resettable
 
     private void ParallaxScenery()
     {
-        //todo: move old scenery items instead of deleting them and creating new ones
-        backgroundContainer.position += new Vector3(backgroundSpeed * Time.deltaTime * -1, 0, 0);
-        middlegroundContainer.position += new Vector3(middlegroundSpeed * Time.deltaTime * -1, 0, 0);
+        if (player.GetComponent<Rigidbody2D>().velocity.x > 0.1f)
+        {
+            backgroundContainer.position += new Vector3(backgroundSpeed * Time.deltaTime * -1, 0, 0);
+            middlegroundContainer.position += new Vector3(middlegroundSpeed * Time.deltaTime * -1, 0, 0);
+        }
     }
 
     private void ExtendScenery(float rightBorder)
     {
+        //todo: move old scenery items instead of deleting them and creating new ones
         Transform lastBackground = backgroundContainer.GetChild(backgroundContainer.childCount - 1);
         Transform lastMiddleGround = middlegroundContainer.GetChild(middlegroundContainer.childCount - 1);
 

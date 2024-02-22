@@ -13,6 +13,7 @@ public class CharacterActions : Resettable
     [SerializeField] private float dashForce = 300f; // Amount of force added when the player dashes.
 
     [SerializeField] private float movementForce = 5f; // The force applied to the character to move them forward.
+    [SerializeField] private float slideMinimumVelocity = 2f; // How much the character can slow down before they have to get up from the sliding state
     private float movementSmoothing = .05f; // How much to smooth out the movement
 
     [SerializeField] private float
@@ -41,8 +42,9 @@ public class CharacterActions : Resettable
     }
 
     private Rigidbody2D rb;
+    private Collider2D regularCollider, slidingCollider;
 
-    public static event Action OnLandEvent, OnDashEvent, OnJumpEvent, OnJumpFallEvent, OnDeathEvent;
+    public static event Action OnLandEvent, OnDashEvent, OnJumpEvent, OnJumpFallEvent, OnDeathEvent, OnSlideEvent, OnSlideOverEvent;
     public static event Action<float> DashRecoveryUpdate, MovementEvent;
 
     private Feet feet;
@@ -55,6 +57,10 @@ public class CharacterActions : Resettable
         rb = GetComponentInChildren<Rigidbody2D>();
         feet = GetComponentInChildren<Feet>();
         sword = GetComponentInChildren<Sword>();
+        regularCollider = GetComponent<CapsuleCollider2D>();
+        slidingCollider = GetComponent<CircleCollider2D>();
+        slidingCollider.enabled = false;
+        regularCollider.enabled = true;
         ToggleSword(false);
         SubscribeToInputEvents();
         defaultPosition = transform.position;
@@ -72,11 +78,15 @@ public class CharacterActions : Resettable
         {
             InputManager.OnJumpPressed += Jump;
             InputManager.OnDashPressed += Dash;
+            InputManager.OnSlidePressed += Slide;
+            InputManager.OnSlideReleased += SlideOver;
         }
         else
         {
             InputManager.OnJumpPressed -= Jump;
             InputManager.OnDashPressed -= Dash;
+            InputManager.OnSlidePressed -= Slide;
+            InputManager.OnSlideReleased -= SlideOver;
         }
     }
 
@@ -89,12 +99,21 @@ private float verticalSpeed = 0;
         {
             if (IsAlive)
             {
-                // Move the character by finding the target velocity
-                Vector3 targetVelocity = new Vector2(movementForce, rb.velocity.y);
-                // And then smoothing it out and applying it to the character
-                rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmoothing);
-                MovementEvent?.Invoke(rb.velocity.x);
-
+                if (!IsSliding)
+                {
+                    // Move the character by finding the target velocity
+                    Vector3 targetVelocity = new Vector2(movementForce, rb.velocity.y);
+                    // And then smoothing it out and applying it to the character
+                    rb.velocity = Vector3.SmoothDamp(rb.velocity, targetVelocity, ref velocity, movementSmoothing);
+                    MovementEvent?.Invoke(rb.velocity.x);
+                }
+                else
+                {
+                    if (rb.velocity.x < slideMinimumVelocity)
+                    {
+                        IsSliding = false;
+                    }
+                }
 
                 //if we started falling in the jump, start the falling animation
                 if (!feet.Grounded)
@@ -133,6 +152,42 @@ private float verticalSpeed = 0;
             //m_Grounded = false;
             rb.AddForce(new Vector2(0f, jumpForce));
             OnJumpEvent?.Invoke();
+        }
+    }
+
+    public void Slide()
+    {
+        IsSliding = true;
+    }
+
+    public void SlideOver()
+    {
+        IsSliding = false;
+    }
+
+    private bool _isSliding;
+
+    public bool IsSliding
+    {
+        get => _isSliding;
+        set
+        {
+            if (feet.Grounded)
+            {
+                if (value && value!=_isSliding)
+                {
+                    OnSlideEvent?.Invoke();
+                    slidingCollider.enabled = true;
+                    regularCollider.enabled = false;
+                }
+                else
+                {
+                    OnSlideOverEvent?.Invoke();
+                    slidingCollider.enabled = false;
+                    regularCollider.enabled = true;
+                }
+                _isSliding = value;
+            }
         }
     }
 
@@ -208,5 +263,7 @@ private float verticalSpeed = 0;
         wasGrounded = true;
         isDashAvailable = true;
 
+        slidingCollider.enabled = false;
+        regularCollider.enabled = true;
     }
 }

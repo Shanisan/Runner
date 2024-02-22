@@ -18,7 +18,7 @@ public class GroundExtender : Resettable
 
     private void Update()
     {
-        if (GameManager.Instance.isGameStarted && player.IsAlive && !resetting)
+        if (player.IsAlive && !resetting)
         {
             var dist = (transform.position - cam.transform.position).z;
             var leftBorder = cam.ViewportToWorldPoint(new Vector3(0, 0, dist)).x;

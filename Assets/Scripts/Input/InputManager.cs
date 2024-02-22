@@ -8,7 +8,7 @@ public class InputManager : MonoBehaviour
     public GameInputSystem input;
     public CharacterActions characterController;
 
-    public static event Action OnJumpPressed, OnDashPressed;
+    public static event Action OnJumpPressed, OnDashPressed, OnSlidePressed, OnSlideReleased;
 
     private void Awake()
     {
@@ -16,9 +16,17 @@ public class InputManager : MonoBehaviour
         input = new GameInputSystem();
         input.Gameplay.Jump.performed += _ => Jump_performed();
         input.Gameplay.Dash.performed += _ => Dash_performed();
+        input.Gameplay.Slide.performed += _ => Slide_performed();
+        input.Gameplay.Slide.canceled += _ => OnSlideReleased?.Invoke();
 #if UNITY_EDITOR
         input.Gameplay.Restart.performed += _ => Restart_performed();
 #endif
+    }
+
+    private void Slide_performed()
+    {
+        Debug.Log("Sliding");
+        OnSlidePressed?.Invoke();
     }
 
     private void Restart_performed()

@@ -12,6 +12,8 @@ public class CharacterAnimationController : Resettable
     private static readonly int LANDING_TRIGGER = Animator.StringToHash("landingTrigger");
     private static readonly int DASH_TRIGGER = Animator.StringToHash("dashTrigger");
     private static readonly int DIE_TRIGGER = Animator.StringToHash("dieTrigger");
+    private static readonly int SLIDE_TRIGGER = Animator.StringToHash("slideTrigger");
+    private static readonly int SLIDE_OVER_TRIGGER = Animator.StringToHash("slideOverTrigger");
     private static readonly int MOVEMENT_SPEED_ABS = Animator.StringToHash("movementSpeedAbs");
 
     private void Awake()
@@ -22,6 +24,16 @@ public class CharacterAnimationController : Resettable
         CharacterActions.OnLandEvent += () => animator.SetTrigger(LANDING_TRIGGER);
         CharacterActions.OnDashEvent += () => animator.SetTrigger(DASH_TRIGGER);
         CharacterActions.OnDeathEvent += () => animator.SetTrigger(DIE_TRIGGER);
+        CharacterActions.OnSlideEvent += () =>
+        {
+            animator.SetTrigger(SLIDE_TRIGGER);
+            animator.ResetTrigger(SLIDE_OVER_TRIGGER);
+        };
+        CharacterActions.OnSlideOverEvent += () =>
+        {
+            animator.ResetTrigger(SLIDE_TRIGGER);
+            animator.SetTrigger(SLIDE_OVER_TRIGGER);
+        };
         CharacterActions.MovementEvent += (x) => animator.SetFloat(MOVEMENT_SPEED_ABS, Math.Abs(x));
     }
 
@@ -50,6 +62,7 @@ public class CharacterAnimationController : Resettable
         animator.ResetTrigger(LANDING_TRIGGER);
         animator.ResetTrigger(DASH_TRIGGER);
         animator.ResetTrigger(DIE_TRIGGER);
+        animator.ResetTrigger(SLIDE_TRIGGER);
         animator.SetFloat(MOVEMENT_SPEED_ABS, 0);
     }
 }
