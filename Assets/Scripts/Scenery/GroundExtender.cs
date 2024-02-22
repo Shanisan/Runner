@@ -1,19 +1,35 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class GroundExtender : Resettable
 {
-    [SerializeField] private GameObject groundPrefab;
     [SerializeField] private CharacterActions player;
     private Camera cam;
     private bool resetting = false;
 
     private float groundSegmentWidth;
+
+    [SerializeField] private List<GameObject> groundSegments = new List<GameObject>();
+    private List<Vector3> groundSegmentDefaultPositions = new List<Vector3>();
     private void Awake()
     {
+        foreach (var segment in groundSegments)
+        {
+            //groundSegments.Add(segment.gameObject);
+            groundSegmentDefaultPositions.Add(segment.transform.position);
+        }
+        groundSegments.Sort(GroundSegmentSorter);
         cam = Camera.main;
-        groundSegmentWidth = groundPrefab.GetComponent<SpriteRenderer>().bounds.size.x;
+        groundSegmentWidth = groundSegments[0].GetComponent<SpriteRenderer>().bounds.size.x;
+    }
+
+    private int GroundSegmentSorter(GameObject a, GameObject b)
+    {
+        return (int)a.transform.position.x - (int)b.transform.position.x ;
     }
 
     private void Update()
@@ -25,39 +41,27 @@ public class GroundExtender : Resettable
             var rightBorder = cam.ViewportToWorldPoint(new Vector3(1, 0, dist)).x;
 
             ExtendGround(rightBorder);
-            CleanupPastScenery(leftBorder);
         }
     }
 
     private void ExtendGround(float rightBorder)
     {
-        Transform lastGroundSegment = transform.GetChild(transform.childCount - 1);
+        Transform lastGroundSegment = groundSegments.Last().transform;
 
-        if (lastGroundSegment.transform.position.x - groundSegmentWidth / 2 < rightBorder)
+        if (lastGroundSegment.transform.position.x + groundSegmentWidth / 2 < rightBorder)
         {
-            MakeNewGroundSegment(lastGroundSegment.position.x + groundSegmentWidth);
+            groundSegments[0].transform.position = new Vector3(lastGroundSegment.position.x + groundSegmentWidth, -3.61f, 0f);
+            groundSegments.Sort(GroundSegmentSorter);
         }
-    }
-
-    private void CleanupPastScenery(float leftBorder)
-    {
-        Transform firstGroundSegment = transform.GetChild(0);
-        
-
-        if (firstGroundSegment.position.x + groundSegmentWidth / 2 < leftBorder)
-        {
-            Destroy(firstGroundSegment.gameObject);
-        }
-    }
-    
-    
-    private void MakeNewGroundSegment(float positionX)
-    {
-        Instantiate(groundPrefab, new Vector3(positionX, -3.61f, 0f), Quaternion.identity, transform);
     }
     
     protected override void Reset()
     {
-        //throw new System.NotImplementedException();
+        for (int i = 0; i < groundSegments.Count; i++)
+        {
+            groundSegments[i].transform.position = groundSegmentDefaultPositions[i];
+        }
+        groundSegments.Sort(GroundSegmentSorter);
     }
+
 }

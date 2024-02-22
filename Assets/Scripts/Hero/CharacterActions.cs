@@ -235,11 +235,11 @@ private float verticalSpeed = 0;
     {
         isDashAvailable = false;
         float dashRecoveryProgress = 0f;
-        while (dashRecoveryProgress<10*dashRecoveryTime)
+        while (dashRecoveryProgress<100*dashRecoveryTime)
         {
             dashRecoveryProgress += 1;
-            DashRecoveryUpdate?.Invoke(dashRecoveryProgress/(dashRecoveryTime*10));
-            yield return new WaitForSeconds(.1f);
+            DashRecoveryUpdate?.Invoke(dashRecoveryProgress/(dashRecoveryTime*100));
+            yield return new WaitForSeconds(.01f);
         }
         isDashAvailable = true;
     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameplayButtons : MonoBehaviour
+public class GameplayButtons : Resettable
 {
     [SerializeField] private Animator dashButtonAnim;
     [SerializeField] private Image dashButton;
@@ -19,6 +19,11 @@ public class GameplayButtons : MonoBehaviour
     private void OnDisable()
     {
         CharacterActions.DashRecoveryUpdate -= UpdateDashButtonProgress;
+    }
+
+    protected override void Reset()
+    {
+        dashButton.fillAmount = 1f;
     }
 
     private void UpdateDashButtonProgress(float currentFillAmount)

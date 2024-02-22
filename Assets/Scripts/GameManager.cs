@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     public UIManager UIManager;
     public bool isGameStarted = false;
 
+    public GameObject Player { get; private set; }
+    
     public event Action RestartGameEvent;
     private void Awake()
     {
@@ -25,6 +27,7 @@ public class GameManager : MonoBehaviour
          AudioManager = GetComponentInChildren<AudioManager>();
         UIManager = GetComponentInChildren<UIManager>();
         */
+        Player = GameObject.FindWithTag("Player");
     }
 
 
